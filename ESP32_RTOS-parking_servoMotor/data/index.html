@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ESP IOT DASHBOARD</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="favicon.png">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    </head>
+    <body>
+        <div class="topnav">
+            <h1>ESP32 IOT DASHBOARD</h1>
+        </div>
+        <div class="content">
+            <div class="card-grid">
+                <div class="card">
+                    <p class="card-title"><i class="fas fa-thermometer-half" style="color:#059e8a;"></i> Temperature</p>
+                    <p class="reading"><span id="temperature">--</span> &deg;C</p>
+                </div>
+                <div class="card">
+                    <p class="card-title"><i class="fas fa-tint" style="color:#1e90ff;"></i> Humidity</p>
+                    <p class="reading"><span id="humidity">--</span> &percnt;</p>
+                </div>
+                <div class="card control-card">
+                    <p class="card-title"><i class="fas fa-lightbulb" style="color:#f39c12;"></i> LED Control</p>
+                    <p class="state">Status: <span id="ledState">OFF</span></p>
+                    <button id="toggleButton" class="toggle-button">
+                        <i class="fas fa-power-off"></i> Toggle LED
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>
