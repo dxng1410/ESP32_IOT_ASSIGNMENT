@@ -14,11 +14,8 @@ static HumidData humidData;
 // ---- Bảng màu ----
 uint32_t color[] = {
     strip.Color(255, 0, 0),      //Red
-    strip.Color(255, 127, 0),    //Orange
     strip.Color(255, 255, 0),    //Yellow
-    strip.Color(0, 255, 0),      //Green
     strip.Color(75, 0, 130),     //Violet
-    strip.Color(148, 0, 211),    //Purple
     strip.Color(255, 255, 255)  //White
 };
 
@@ -73,28 +70,16 @@ void taskLEDRGB(void *pvParameters) {
             strip.fill(color[0]);
             data = "[LED] (RED)"; 
             Serial.println(data);
-        }else if (currentHumid < 40) {
-            strip.fill(color[1]);
-            data = "[LED] (ORANGE)";
-            Serial.println(data);
         }else if (currentHumid < 50) {
-            strip.fill(color[2]); 
+            strip.fill(color[1]); 
             data = "[LED] (YELLOW)";
             Serial.println(data);
-        }else if (currentHumid < 60) {
-            strip.fill(color[3]);
-            data = "[LED] (GREEN)";
-            Serial.println(data);
         }else if (currentHumid < 70) {
-            strip.fill(color[4]);
+            strip.fill(color[2]);
             data = "[LED] (VIOLET)";
             Serial.println(data);
-        }else if (currentHumid < 80) {
-            strip.fill(color[5]);
-            data = "[LED] (PURPLE)";
-            Serial.println(data);
-        } else {
-            strip.fill(color[6]);
+        }else if (currentHumid > 80) {
+            strip.fill(color[3]);
             data = "[LED] (WHITE)";
             Serial.println(data);
         }
