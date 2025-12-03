@@ -105,6 +105,10 @@ void taskCoreIOT(void *pvParameters) {
 
             // --- ĐOẠN GỬI DỮ LIỆU ---
             JSONVar telemetry;
+            telemetry["temperature"] = temperature;
+            telemetry["humidity"] = humidity;
+            telemetry["long"] = LOCATION_LONG;
+            telemetry["lat"] = LOCATION_LAT;
             telemetry["parking_active"] = isParkingSystemActive; 
             String jsonString = JSON.stringify(telemetry);
             coreiotClient.publish("v1/devices/me/telemetry", (const uint8_t*)jsonString.c_str(), jsonString.length());
