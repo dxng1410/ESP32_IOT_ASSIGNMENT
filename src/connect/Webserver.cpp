@@ -14,7 +14,7 @@ const int output17 = 9;
 const int ledD13 = 48;  // LED D13 (GPIO48)
 
 // --- CẤU HÌNH QUẠT/MOTOR ---
-const int fanPin = 10;  
+const int fanPin = 6;  
 bool isFanRunning = false; 
 int fanDutyCycle = 0;      
 int fanStep = 5;           

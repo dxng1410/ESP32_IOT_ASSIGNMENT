@@ -79,13 +79,13 @@ void TaskCarParking(void *pvParameters) {
             // KHÔNG CÓ XE (hoặc xe đã đi)
             if (isGateOpen) {
                 // Đợi một chút cho an toàn (debounce) nếu cần
-                vTaskDelay(500 / portTICK_PERIOD_MS); 
+                vTaskDelay(1000 / portTICK_PERIOD_MS); 
                 
                 // Kiểm tra lại lần nữa cho chắc chắn trước khi đóng
                 float confirmDist = getUltrasonicDistance();
                 if (confirmDist > PARKING_DIST_THRESHOLD || confirmDist == -1) {
                     Serial.println(">>> CAR LEFT! Closing Gate...");
-                    motorCloseGate();
+                    motorOpenGate();
                     vTaskDelay(GATE_ACTION_TIME / portTICK_PERIOD_MS); // Quay ngược lại 1s
                     motorStop(); // Dừng lại sau khi đóng
                     isGateOpen = false;

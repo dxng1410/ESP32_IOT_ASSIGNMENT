@@ -66,19 +66,19 @@ void taskLEDRGB(void *pvParameters) {
 
         // Đổi màu LED theo mức ẩm
         String data;
-        if (currentHumid < 30) {
+        if (currentHumid <= 30) {
             strip.fill(color[0]);
             data = "[LED] (RED)"; 
             Serial.println(data);
-        }else if (currentHumid < 50) {
+        }else if (currentHumid > 30 && currentHumid <= 50) {
             strip.fill(color[1]); 
             data = "[LED] (YELLOW)";
             Serial.println(data);
-        }else if (currentHumid < 70) {
+        }else if (currentHumid > 50 && currentHumid <= 70) {
             strip.fill(color[2]);
             data = "[LED] (VIOLET)";
             Serial.println(data);
-        }else if (currentHumid > 80) {
+        }else if (currentHumid > 70) {
             strip.fill(color[3]);
             data = "[LED] (WHITE)";
             Serial.println(data);
