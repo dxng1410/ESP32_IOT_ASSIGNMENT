@@ -40,7 +40,7 @@ void motorCloseGate() {
     // Đảo chiều dòng điện: MOTOR_1 LOW, MOTOR_2 HIGH (PWM)
     Serial.println("Motor: CLOSING (Reverse)...");
     digitalWrite(MOTOR_1_PIN, LOW);
-    analogWrite(MOTOR_2_PIN, MOTOR_SPEED);
+    analogWrite(MOTOR_2_PIN, 255 - MOTOR_SPEED);
 }
 
 // --- 3. TASK CHÍNH ---
@@ -85,7 +85,7 @@ void TaskCarParking(void *pvParameters) {
                 float confirmDist = getUltrasonicDistance();
                 if (confirmDist > PARKING_DIST_THRESHOLD || confirmDist == -1) {
                     Serial.println(">>> CAR LEFT! Closing Gate...");
-                    motorOpenGate();
+                    motorCloseGate();
                     vTaskDelay(GATE_ACTION_TIME / portTICK_PERIOD_MS); // Quay ngược lại 1s
                     motorStop(); // Dừng lại sau khi đóng
                     isGateOpen = false;

@@ -94,9 +94,9 @@ void displayTempHumidity(void *pvParameters)
         xSemaphoreTake(xNormalSemaphore, 0);
         xSemaphoreTake(xWarningSemaphore, 0);
 
-        if(temperature < 25 && humidity < 70){
+        if(temperature < 25 && humidity < 50){
             xSemaphoreGive(xIdealSemaphore);   
-        }else if(temperature >= 25 && temperature < 35 && humidity >= 70 && humidity < 80){
+        }else if(temperature >= 25 && temperature < 35 && humidity >= 50 && humidity < 80){
             xSemaphoreGive(xNormalSemaphore);
         }else{
             xSemaphoreGive(xWarningSemaphore);
