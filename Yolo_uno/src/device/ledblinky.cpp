@@ -31,7 +31,7 @@ void led_blinky(void *pvParameters) {
             currentBlinkInterval = BLINK_COLD;
             data = "[LED] Temperature LOW → blinking SLOW";
             Serial.println(data);
-        } else if (currentTemp > 28.0) {
+        } else if (currentTemp > 35.0) {
             currentBlinkInterval = BLINK_HOT;
             data = "[LED] Temperature HIGH → blinking FAST";
             Serial.println(data);
