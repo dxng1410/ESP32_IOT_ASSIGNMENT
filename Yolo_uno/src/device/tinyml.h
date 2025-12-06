@@ -1,5 +1,5 @@
-#ifndef __TINY_ML__
-#define __TINY_ML__
+#ifndef _TINY_ML_
+#define _TINY_ML_
 
 #include <Arduino.h>
 
@@ -12,10 +12,9 @@
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
-void setupTinyML();
-void tiny_ml_task(void *pvParameters);
-void tinyML(); 
-extern const unsigned char dht_anomaly_model_tflite[];
 extern float ml_inference_result; // Biến chia sẻ kết quả
 
-#endif // __TINY_ML__
+void setupTinyML();
+void tiny_ml_task(void *pvParameters);
+void tinyML();
+#endif

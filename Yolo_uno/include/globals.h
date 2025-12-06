@@ -57,6 +57,7 @@ extern SemaphoreHandle_t xWarningSemaphore ;
 extern SemaphoreHandle_t xIdealSemaphore ;
 extern SemaphoreHandle_t xTempSemaphore;
 extern SemaphoreHandle_t xHumidSemaphore;
+extern SemaphoreHandle_t xInferenceResultSemaphore;
 extern float glob_temperature;
 extern float glob_humidity;
 
@@ -72,5 +73,6 @@ extern String CORE_IOT_SERVER;
 extern String CORE_IOT_PORT;
 extern boolean isWifiConnected;
 extern SemaphoreHandle_t xBinarySemaphoreInternet;
+extern float glob_inference_result;
 
 #endif

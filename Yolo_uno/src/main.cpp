@@ -19,7 +19,7 @@ void setup()
     xSemaphoreGive(xBinarySemaphoreInternet); 
     initMQTT();  
   } 
-  
+  xSemaphoreGive(xInferenceResultSemaphore);
   initDHT20();
   initCoreIOT();
   initLCD();

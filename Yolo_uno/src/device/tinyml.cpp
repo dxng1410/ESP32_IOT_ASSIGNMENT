@@ -1,5 +1,7 @@
 #include "tinyml.h"
 
+float ml_inference_result = 0.0;
+
 const unsigned char dht_anomaly_model_tflite[] = {
   0x1c, 0x00, 0x00, 0x00, 0x54, 0x46, 0x4c, 0x33, 0x14, 0x00, 0x20, 0x00,
   0x1c, 0x00, 0x18, 0x00, 0x14, 0x00, 0x10, 0x00, 0x0c, 0x00, 0x00, 0x00,
@@ -151,84 +153,95 @@ const unsigned char dht_anomaly_model_tflite[] = {
   0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x0c, 0x00, 0x00, 0x00,
   0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09};
 
-float ml_inference_result = 0.0;
-
-  // Globals, for the convenience of one-shot setup.
-namespace {
-tflite::ErrorReporter* error_reporter = nullptr;
-const tflite::Model* model = nullptr;
-tflite::MicroInterpreter* interpreter = nullptr;
-TfLiteTensor* input = nullptr;
-TfLiteTensor* output = nullptr;
-constexpr int kTensorArenaSize = 8 * 1024; // Adjust size based on your model
-uint8_t tensor_arena[kTensorArenaSize];
+// Globals, for the convenience of one-shot setup.
+namespace
+{
+	tflite::ErrorReporter *error_reporter = nullptr;
+	const tflite::Model *model = nullptr;
+	tflite::MicroInterpreter *interpreter = nullptr;
+	TfLiteTensor *input = nullptr;
+	TfLiteTensor *output = nullptr;
+	constexpr int kTensorArenaSize = 8 * 1024; // Adjust size based on your model
+	uint8_t tensor_arena[kTensorArenaSize];
 } // namespace
 
-void setupTinyML(){
-    Serial.println("TensorFlow Lite Init....");
-    static tflite::MicroErrorReporter micro_error_reporter;
-    error_reporter = &micro_error_reporter;
+void setupTinyML() {
+	Serial.println("[INIT] Tiny ML task created successfully.");
+	Serial.println("TensorFlow Lite Init....");
 
-    model = tflite::GetModel(dht_anomaly_model_tflite); // g_model_data is from model_data.h
-    if (model->version() != TFLITE_SCHEMA_VERSION) {
-    error_reporter->Report("Model provided is schema version %d, not equal to supported version %d.",
-                            model->version(), TFLITE_SCHEMA_VERSION);
-    return;
-    }
+	static tflite::MicroErrorReporter micro_error_reporter;
+	error_reporter = &micro_error_reporter;
 
-    static tflite::AllOpsResolver resolver;
-    static tflite::MicroInterpreter static_interpreter(
-        model, resolver, tensor_arena, kTensorArenaSize, error_reporter);
-    interpreter = &static_interpreter;
+	// model array included from dht_anomaly_model.h in include/tinyml.h
+	model = tflite::GetModel(dht_anomaly_model_tflite); // g_model_data is from model_data.h, model array name
+	if (model->version() != TFLITE_SCHEMA_VERSION) {
+		error_reporter->Report("Model provided is schema version %d, not equal to supported version %d.",
+							   model->version(), TFLITE_SCHEMA_VERSION);
+		return;
+	}
 
-    TfLiteStatus allocate_status = interpreter->AllocateTensors();
-    if (allocate_status != kTfLiteOk) {
-    error_reporter->Report("AllocateTensors() failed");
-    return;
-    }
+	static tflite::AllOpsResolver resolver;
+	static tflite::MicroInterpreter static_interpreter(
+		model, resolver, tensor_arena, kTensorArenaSize, error_reporter);
+	interpreter = &static_interpreter;
 
-    input = interpreter->input(0);
-    output = interpreter->output(0);
+	TfLiteStatus allocate_status = interpreter->AllocateTensors();
+	if (allocate_status != kTfLiteOk) {
+		error_reporter->Report("AllocateTensors() failed");
+		return;
+	}
 
+	input = interpreter->input(0);
+	output = interpreter->output(0);
 
-    Serial.println("TensorFlow Lite Micro initialized on ESP32.");
+	Serial.println("TensorFlow Lite Micro initialized on ESP32.");
 }
 
-void tiny_ml_task(void *pvParameters){
-    
-    setupTinyML();
+void tiny_ml_task(void *pvParameters) {
+	setupTinyML();
+	// delay(1000);
 
-    while(1){
-       
-        // Prepare input data (e.g., sensor readings)
-        // For a simple example, let's assume a single float input
-        input->data.f[0] = temperature; 
-        input->data.f[1] = humidity; 
+	while (1) {
+		// Prepare input data (e.g., sensor readings)
+		// For a simple example, let's assume a single float input
+		input->data.f[0] = dht20.getTemperature();
+		input->data.f[1] = dht20.getHumidity();
 
-        // Run inference
-        TfLiteStatus invoke_status = interpreter->Invoke();
-        if (invoke_status != kTfLiteOk) {
-        error_reporter->Report("Invoke failed");
-        return;
+		// Run inference
+		TfLiteStatus invoke_status = interpreter->Invoke();
+		if (invoke_status != kTfLiteOk) {
+			error_reporter->Report("Invoke failed");
+			return;
+		}
+
+		// Get and process output
+		float result = output->data.f[0];
+
+		if (xSemaphoreTake(xInferenceResultSemaphore, portMAX_DELAY) == pdTRUE) {
+            glob_inference_result = result;
+            xSemaphoreGive(xInferenceResultSemaphore);
         }
-
-        // Get and process output
-        float result = output->data.f[0];
-        Serial.print("Inference result: ");
-        Serial.println(result);
-        publishData("feed_inference",String(result));
         ml_inference_result = result;
-        vTaskDelay(2000); 
-    }
+        if(result > 0.5){
+            Serial.print("Inference result: ");
+            Serial.println(String(result) + " >> ANOMALY");
+        }
+        else{
+            Serial.print("Inference result: ");
+            Serial.println(result);
+        }
+		vTaskDelay(pdMS_TO_TICKS(2000));
+	}
 }
 
 void tinyML(){
     xTaskCreatePinnedToCore(
-        tiny_ml_task,   // Function to implement the task
-        "TinyML Task", // Name of the task
-        8192,           // Stack size in words
-        NULL,           // Task input parameter
-        1,              // Priority of the task
-        NULL,           // Task handle.
-        1);             // Core where the task should run
+        tiny_ml_task,   // Tên hàm chứa nội dung công việc (đã có ở trên)
+        "TinyML Task",  // Tên đặt cho Task (để debug)
+        8192,           // Kích thước Stack (TinyML cần khá nhiều RAM, 8KB là ổn)
+        NULL,           // Tham số truyền vào (không cần, để NULL)
+        1,              // Độ ưu tiên (Priority)
+        NULL,           // Task Handle
+        1               // Chạy trên Core 1 (Core 0 thường dùng cho Wifi/BLE)
+    ); 
 }
